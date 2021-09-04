@@ -1,29 +1,44 @@
-import React from "react";
+import { useSelector, useDispatch } from "react-redux";
 import PropTypes from "prop-types";
+import { deleteContact } from "../../Redux/actionsR";
 import styles from "./style.module.css";
 
-const ContactList = ({ contacts, onRemoveContact }) => (
-  <ul className={styles.TaskList}>
-    {contacts.map((contact) => (
-      <li className={styles.TaskList_item} key={contact.id}>
-        {contact.name + " : " + contact.number}
-        {
-          <button
-            className={styles.TaskList_button}
-            type="button"
-            name="delte"
-            onClick={() => onRemoveContact(contact.id)}
-          >
-            delete
-          </button>
-        }
-      </li>
-    ))}
-  </ul>
-);
+const ContactList = () => {
+  const dispatch = useDispatch();
+  const onRemoveContact = (id) => dispatch(deleteContact(id));
+
+  const getContactList = (state) => {
+    const { filter, items } = state.contacts;
+
+    return items.filter((contact) =>
+      contact.name.toLowerCase().includes(filter.toLowerCase())
+    );
+  };
+
+  const contacts = useSelector(getContactList);
+
+  return (
+    <ul className={styles.TaskList}>
+      {contacts.map(({ name, id, number }) => (
+        <li className={styles.TaskList_item} key={id}>
+          {name + " : " + number}
+          {
+            <button
+              className={styles.TaskList_button}
+              type="button"
+              name="delete"
+              onClick={() => onRemoveContact(id)}
+            >
+              delete
+            </button>
+          }
+        </li>
+      ))}
+    </ul>
+  );
+};
 
 ContactList.propTypes = {
-  onRemoveContact: PropTypes.func.isRequired,
   contacts: PropTypes.arrayOf(
     PropTypes.shape({
       id: PropTypes.string.isRequired,
